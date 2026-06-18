@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowthOS — AI Executive Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+// ============================================================
+// YOUR API KEY — PASTE IT BETWEEN THE QUOTES BELOW
+// ============================================================
+const GROWTHOS_API_KEY = "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";
+// ============================================================
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#fff;--bg2:#f8f8f9;--bg3:#f2f2f4;
+--text:#0a0a0b;--text2:#6b6b7a;--text3:#9999aa;
+--border:#e5e5eb;--border2:#d0d0db;
+--accent:#6366f1;--accent-bg:#eef2ff;--accent-dark:#4f46e5;
+--green:#10b981;--green-bg:#ecfdf5;
+--amber:#f59e0b;--amber-bg:#fffbeb;
+--red:#ef4444;--red-bg:#fef2f2;
+--blue:#3b82f6;--blue-bg:#eff6ff;
+--sidebar:220px;--topbar:56px;
+--radius:8px;--radius-lg:12px;--radius-xl:16px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg2);color:var(--text);font-size:14px;line-height:1.5;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* BETA BANNER */
+.beta-banner{background:linear-gradient(90deg,#0f0f11,#1e1e2e);color:#fff;text-align:center;padding:8px;font-size:12px;font-weight:500;letter-spacing:.3px;flex-shrink:0}
+.beta-banner span{background:rgba(99,102,241,.3);border:1px solid rgba(99,102,241,.5);border-radius:20px;padding:2px 10px;margin-right:8px;font-size:11px;font-weight:600;color:#a5b4fc}
+
+/* AUTH */
+#auth-screen{display:flex;align-items:center;justify-content:center;flex:1;background:linear-gradient(135deg,#f8f8f9 0%,#eef2ff 100%);padding:24px}
+.auth-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-xl);padding:44px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px;justify-content:center}
+.auth-mark{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px}
+.auth-wordmark{font-size:20px;font-weight:700;letter-spacing:-.4px}
+.auth-beta{text-align:center;margin-bottom:28px}
+.auth-beta-pill{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid rgba(99,102,241,.3);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600;margin-bottom:6px}
+.auth-title{font-size:21px;font-weight:700;text-align:center;margin-bottom:5px;letter-spacing:-.3px}
+.auth-sub{font-size:13px;color:var(--text2);text-align:center}
+.auth-tabs{display:flex;border:1px solid var(--border);border-radius:var(--radius);padding:3px;gap:3px;margin:20px 0}
+.auth-tab{flex:1;padding:8px;border-radius:6px;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;text-align:center;cursor:pointer}
+.auth-tab.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.form-g{margin-bottom:15px}
+.form-label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text)}
+.form-input{width:100%;padding:10px 13px;border:1px solid var(--border2);border-radius:var(--radius);font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border .15s}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.08)}
+.form-input::placeholder{color:var(--text3)}
+.btn-primary{width:100%;padding:11px;background:var(--accent);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:600;transition:background .15s;border:none;cursor:pointer}
+.btn-primary:hover{background:var(--accent-dark)}
+.auth-note{margin-top:12px;font-size:11px;color:var(--text3);text-align:center;line-height:1.6}
+
+/* APP */
+#app{display:none;height:100vh;overflow:hidden;flex-direction:column}
+.topbar{height:var(--topbar);background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0}
+.tl{display:flex;align-items:center;gap:8px;width:var(--sidebar);flex-shrink:0}
+.logo-mark{width:26px;height:26px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0}
+.logo-text{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.beta-pill{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(99,102,241,.3);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;margin-left:2px}
+.tb-search{flex:1;max-width:340px;position:relative}
+.tb-search input{width:100%;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--bg2);color:var(--text);outline:none}
+.tb-search input:focus{border-color:var(--accent);background:var(--bg)}
+.s-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:9px}
+.tb-btn{padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;background:var(--bg)}
+.tb-btn:hover{background:var(--bg3);color:var(--text)}
+.tb-btn.accent{color:var(--accent);border-color:rgba(99,102,241,.3);background:var(--accent-bg)}
+.avatar{width:30px;height:30px;background:var(--accent-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer}
+
+/* BODY */
+.body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:var(--sidebar);background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:10px 0;flex-shrink:0;overflow-y:auto}
+.nav-sec{padding:0 10px;margin-bottom:2px}
+.nav-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:8px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--radius);cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;margin-bottom:1px;user-select:none}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent)}
+.nbadge{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px}
+.sb-foot{margin-top:auto;padding:10px;border-top:1px solid var(--border)}
+.up-card{background:var(--accent-bg);border-radius:var(--radius-lg);padding:12px;text-align:center}
+.up-card h4{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.up-card p{font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.up-btn{background:var(--accent);color:#fff;padding:7px 14px;border-radius:var(--radius);font-size:12px;font-weight:600;width:100%;cursor:pointer;border:none}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:22px}
+.page{display:none}.page.active{display:block}
+.page-title{font-size:19px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+
+/* CARDS */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.card-sm{padding:13px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.card-title{font-size:13px;font-weight:600}
+
+/* METRICS */
+.metric{font-size:24px;font-weight:700;letter-spacing:-.5px}
+.delta{font-size:11px;font-weight:500;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;margin-top:4px}
+.up{background:var(--green-bg);color:#065f46}.dn{background:var(--red-bg);color:#991b1b}.neu{background:var(--bg3);color:var(--text2)}
+
+/* TAGS */
+.tag{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.t-g{background:var(--green-bg);color:#065f46}.t-r{background:var(--red-bg);color:#991b1b}
+.t-a{background:var(--amber-bg);color:#92400e}.t-b{background:var(--blue-bg);color:#1e40af}.t-p{background:var(--accent-bg);color:#3730a3}
+
+/* BANNER */
+.banner{background:#0f0f11;color:#fff;border-radius:var(--radius-xl);padding:22px;margin-bottom:18px}
+.banner-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:9px}
+.banner-text{font-size:14px;line-height:1.7;color:rgba(255,255,255,.87)}
+.banner-pills{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px}
+.bp{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.7)}
+.bp.g{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.25);color:#6ee7b7}
+.bp.r{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.25);color:#fca5a5}
+.bp.a{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.25);color:#fcd34d}
+
+/* HEALTH */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-ctr{position:absolute;text-align:center}
+.ring-num{font-size:26px;font-weight:700;letter-spacing:-.5px}
+.ring-lbl{font-size:10px;color:var(--text3)}
+.score-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)}
+.score-row:last-child{border:none}
+.score-lbl{font-size:12px;color:var(--text2);flex:1}
+.score-track{width:90px;height:5px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.score-fill{height:100%;border-radius:99px}
+.score-val{font-size:12px;font-weight:600;min-width:24px;text-align:right}
+
+/* INSIGHTS */
+.ic{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:11px 13px;display:flex;align-items:flex-start;gap:10px}
+.ic-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.ic-txt{font-size:12px;font-weight:500;line-height:1.5}
+.ic-meta{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ACTIONS */
+.ac{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;display:flex;gap:10px;transition:all .15s}
+.ac:hover{border-color:var(--border2)}
+.ac-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ac-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.ac-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.ac-foot{display:flex;align-items:center;gap:8px;margin-top:8px}
+.chk{margin-left:auto;width:20px;height:20px;border:1.5px solid var(--border2);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.chk:hover{border-color:var(--green);color:var(--green)}
+.chk.done{background:var(--green);border-color:var(--green);color:#fff}
+
+/* BAR */
+.bar-chart{display:flex;flex-direction:column;gap:7px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-lbl{width:80px;font-size:11px;color:var(--text2);text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:19px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;font-weight:600;color:#fff}
+
+/* SPARK */
+.spark{height:26px;display:flex;align-items:flex-end;gap:2px;margin-top:7px}
+.sb{flex:1;border-radius:2px;min-height:3px}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - var(--topbar) - 160px);min-height:360px}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:13px;padding-bottom:13px}
+.msg{display:flex;gap:8px;max-width:84%}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.msg-av.ai{background:var(--accent-bg);color:var(--accent)}
+.msg-av.usr{background:var(--text);color:#fff}
+.bubble{padding:10px 13px;border-radius:var(--radius-lg);font-size:13px;line-height:1.65}
+.bubble.ai{background:var(--bg);border:1px solid var(--border);color:var(--text)}
+.bubble.usr{background:var(--accent);color:#fff}
+.bubble.err{background:var(--red-bg);border:1px solid rgba(239,68,68,.2);color:#991b1b}
+.chat-footer{padding-top:13px;border-top:1px solid var(--border)}
+.chat-row{display:flex;gap:8px}
+.chat-ta{flex:1;padding:9px 13px;border:1px solid var(--border2);border-radius:var(--radius-lg);font-size:13px;resize:none;outline:none;background:var(--bg);color:var(--text);line-height:1.5;max-height:110px;transition:border .15s}
+.chat-ta:focus{border-color:var(--accent)}
+.send-btn{padding:9px 16px;background:var(--accent);color:#fff;border-radius:var(--radius-lg);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:background .15s;white-space:nowrap}
+.send-btn:hover{background:var(--accent-dark)}
+.send-btn:disabled{background:var(--text3);cursor:not-allowed}
+.sugs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.sug{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer;background:var(--bg);transition:all .15s}
+.sug:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.tdots{display:flex;gap:3px;align-items:center;padding:9px 13px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:boun .9s infinite}
+.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+@keyframes boun{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+.ctx-area{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px;margin-bottom:13px}
+.ctx-lbl{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.ctx-ta{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;background:var(--bg2);color:var(--text);outline:none;resize:vertical;min-height:86px;line-height:1.55;transition:border .15s}
+.ctx-ta:focus{border-color:var(--accent);background:var(--bg)}
+
+/* UPLOAD */
+.drop{border:2px dashed var(--border2);border-radius:var(--radius-xl);padding:36px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+.drop:hover,.drop.drag{border-color:var(--accent);background:var(--accent-bg)}
+.ftags{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.ftag{padding:3px 10px;background:var(--bg3);border-radius:20px;font-size:11px;font-weight:500;color:var(--text2)}
+
+/* INT */
+.int-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.int-card{border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;text-align:center;background:var(--bg)}
+.int-logo{width:36px;height:36px;border-radius:9px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.int-name{font-size:12px;font-weight:600;margin-bottom:3px}
+.int-status{font-size:11px;color:var(--text3)}
+.int-btn{margin-top:8px;padding:5px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;background:var(--bg);transition:all .15s;width:100%}
+.int-btn:hover{border-color:var(--accent);color:var(--accent)}
+.int-btn.on{background:var(--green-bg);border-color:rgba(16,185,129,.3);color:#065f46}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.pc{border:1px solid var(--border);border-radius:var(--radius-xl);padding:22px;background:var(--bg);position:relative}
+.pc.pop{border-color:var(--accent);border-width:2px}
+.pop-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:600;padding:3px 13px;border-radius:20px;white-space:nowrap}
+.p-name{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.p-amt{font-size:28px;font-weight:700;letter-spacing:-.5px}
+.p-per{font-size:12px;color:var(--text3)}
+.p-desc{font-size:12px;color:var(--text2);margin:8px 0 14px;line-height:1.5}
+.p-feats{list-style:none;margin-bottom:16px}
+.p-feat{font-size:12px;padding:5px 0;color:var(--text2);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+.p-feat:last-child{border:none}
+.p-feat::before{content:'✓';color:var(--green);font-weight:700;font-size:11px;flex-shrink:0}
+.p-btn{width:100%;padding:9px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);transition:all .15s}
+.p-btn:hover{border-color:var(--accent);color:var(--accent)}
+.p-btn.pop{background:var(--accent);color:#fff;border-color:transparent}
+.p-btn.pop:hover{background:var(--accent-dark)}
+
+/* MISC */
+.sep{height:1px;background:var(--border);margin:14px 0}
+.ai-bar{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--accent-bg);border:1px solid rgba(99,102,241,.2);border-radius:var(--radius-lg);font-size:13px;color:#3730a3;margin-bottom:14px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pls 1.2s infinite;flex-shrink:0}
+@keyframes pls{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 18px;border-radius:var(--radius-lg);font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.report-shell{background:#f0f0f0;border-radius:var(--radius-xl);padding:18px}
+.report-page{background:#fff;border-radius:var(--radius-lg);padding:30px;max-width:500px;margin:0 auto;box-shadow:0 2px 20px rgba(0,0,0,.1)}
+
+/* NO KEY WARNING */
+.no-key-bar{background:#fff3cd;border:1px solid #ffc107;border-radius:var(--radius-lg);padding:12px 15px;font-size:13px;color:#856404;margin-bottom:14px;display:none;line-height:1.6}
+
+@media(max-width:860px){.sidebar{display:none}.g4{grid-template-columns:repeat(2,1fr)}.pricing-grid{grid-template-columns:1fr}.int-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.g2,.g3{grid-template-columns:1fr}.tb-search{display:none}}
+</style>
+</head>
+<body>
+
+<!-- BETA BANNER -->
+<div class="beta-banner">
+  <span>BETA</span>
+  GrowthOS is currently in private beta — thank you for testing! 🚀
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-mark">G</div>
+      <span class="auth-wordmark">GrowthOS</span>
+    </div>
+    <div class="auth-beta">
+      <div class="auth-beta-pill">🔒 Private Beta</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px">Invite-only access</div>
+    </div>
+    <div class="auth-title">Your AI Executive Assistant</div>
+    <div class="auth-sub" style="margin-bottom:4px">Know exactly what's happening in your business.</div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchTab('login',this)">Sign in</div>
+      <div class="auth-tab" onclick="switchTab('signup',this)">Create account</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="form-g"><label class="form-label">Your name</label><input type="text" class="form-input" id="l-name" placeholder="Sarah Johnson" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="form-g"><label class="form-label">Company name</label><input type="text" class="form-input" id="l-company" placeholder="Acme Digital Ltd" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn-primary" onclick="doLogin()">Enter GrowthOS →</button>
+      <div class="auth-note">Beta access · No password needed during testing</div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="form-signup" style="display:none">
+      <div class="g2" style="gap:11px;margin-bottom:14px">
+        <div class="form-g" style="margin:0"><label class="form-label">First name</label><input type="text" class="form-input" id="s-fname" placeholder="Sarah"></div>
+        <div class="form-g" style="margin:0"><label class="form-label">Last name</label><input type="text" class="form-input" id="s-lname" placeholder="Johnson"></div>
+      </div>
+      <div class="form-g"><label class="form-label">Company name</label><input type="text" class="form-input" id="s-company" placeholder="Acme Digital Ltd"></div>
+      <div class="form-g"><label class="form-label">Industry</label>
+        <select class="form-input" id="s-industry">
+          <option>Marketing Agency</option><option>Consultancy</option><option>E-commerce</option>
+          <option>Service Business</option><option>Tech Startup</option><option>Retail</option><option>Other</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="doSignup()">Start exploring GrowthOS →</button>
+      <div class="auth-note">Beta access · Free to use during testing period</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="tl">
+      <div class="logo-mark">G</div>
+      <span class="logo-text">GrowthOS</span>
+      <span class="beta-pill">BETA</span>
+    </div>
+    <div class="tb-search">
+      <span class="s-ico">🔍</span>
+      <input type="text" placeholder="Search insights, data, reports…">
+    </div>
+    <div class="tb-right">
+      <button class="tb-btn" onclick="showPage('upload')">⬆ Upload</button>
+      <button class="tb-btn accent" onclick="showPage('report')">📄 Report</button>
+      <div class="avatar" id="user-av" onclick="showPage('settings')">??</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="nav-sec">
+        <div class="nav-lbl">Overview</div>
+        <div class="nav-item active" onclick="showPage('dashboard',this)">📊 Executive Dashboard</div>
+        <div class="nav-item" onclick="showPage('advisor',this)">🤖 AI Business Advisor</div>
+        <div class="nav-item" onclick="showPage('report',this)">📄 Weekly Report <span class="nbadge" style="background:var(--green);color:#fff">New</span></div>
+      </div>
+      <div class="nav-sec">
+        <div class="nav-lbl">Intelligence</div>
+        <div class="nav-item" onclick="showPage('leads',this)">🎯 Lead Intelligence <span class="nbadge" style="background:var(--amber);color:#fff">8</span></div>
+        <div class="nav-item" onclick="showPage('customers',this)">💬 Customer Feedback</div>
+        <div class="nav-item" onclick="showPage('marketing',this)">📣 Marketing Intel</div>
+        <div class="nav-item" onclick="showPage('competitors',this)">🔍 Competitor Watch</div>
+      </div>
+      <div class="nav-sec">
+        <div class="nav-lbl">Data</div>
+        <div class="nav-item" onclick="showPage('upload',this)">⬆ Upload Data</div>
+        <div class="nav-item" onclick="showPage('integrations',this)">🔗 Integrations</div>
+      </div>
+      <div class="nav-sec">
+        <div class="nav-lbl">Account</div>
+        <div class="nav-item" onclick="showPage('pricing',this)">💳 Plans & Billing</div>
+        <div class="nav-item" onclick="showPage('settings',this)">⚙ Settings</div>
+      </div>
+      <div class="sb-foot">
+        <div class="up-card">
+          <h4>You're in Beta 🎉</h4>
+          <p>Full launch coming soon. Your feedback shapes the product.</p>
+          <button class="up-btn" onclick="showToast('Thank you! Feedback noted 🙏')">Give feedback</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main" id="main-scroll">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+          <div>
+            <div class="page-title" id="dash-greeting">Good morning 👋</div>
+            <div class="page-sub" style="margin:0">Here's what's happening in your business today</div>
+          </div>
+          <div style="display:flex;gap:7px">
+            <button onclick="showPage('upload')" style="padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-weight:500;color:var(--text2);background:var(--bg);cursor:pointer">⬆ Upload data</button>
+            <button onclick="showPage('advisor')" style="padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer">🤖 Ask AI advisor</button>
+          </div>
+        </div>
+
+        <div class="banner">
+          <div class="banner-lbl">🤖 AI Executive Summary · Generated just now</div>
+          <div class="banner-text" id="dash-summary">Revenue increased by 12% this week, primarily driven by consulting retainer contracts. Instagram generated the highest number of leads — 34 this week. Three invoices totalling AED 47,500 remain overdue. Customer satisfaction improved to 4.6/5 — your onboarding redesign is working.</div>
+          <div class="banner-pills">
+            <span class="bp g">↑ Revenue +12%</span>
+            <span class="bp g">↑ Satisfaction 4.6/5</span>
+            <span class="bp a">⚠ 3 overdue invoices</span>
+            <span class="bp r">↓ Lead response slow</span>
+            <span class="bp">📣 Instagram top channel</span>
+          </div>
+        </div>
+
+        <div class="g4" style="margin-bottom:16px">
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Monthly Revenue</div><div class="metric">AED 218K</div><div class="delta up">↑ 12%</div><div class="spark"><div class="sb" style="height:38%;background:var(--green);opacity:.4"></div><div class="sb" style="height:52%;background:var(--green);opacity:.55"></div><div class="sb" style="height:44%;background:var(--green);opacity:.65"></div><div class="sb" style="height:68%;background:var(--green);opacity:.75"></div><div class="sb" style="height:58%;background:var(--green);opacity:.85"></div><div class="sb" style="height:78%;background:var(--green);opacity:.92"></div><div class="sb" style="height:100%;background:var(--green)"></div></div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">New Leads</div><div class="metric">142</div><div class="delta up">↑ 23%</div><div class="spark"><div class="sb" style="height:48%;background:var(--accent);opacity:.4"></div><div class="sb" style="height:62%;background:var(--accent);opacity:.55"></div><div class="sb" style="height:38%;background:var(--accent);opacity:.65"></div><div class="sb" style="height:74%;background:var(--accent);opacity:.75"></div><div class="sb" style="height:58%;background:var(--accent);opacity:.85"></div><div class="sb" style="height:84%;background:var(--accent);opacity:.92"></div><div class="sb" style="height:100%;background:var(--accent)"></div></div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Conversion Rate</div><div class="metric">18.4%</div><div class="delta dn">↓ 2.1%</div><div class="spark"><div class="sb" style="height:80%;background:var(--red);opacity:.6"></div><div class="sb" style="height:74%;background:var(--red);opacity:.65"></div><div class="sb" style="height:84%;background:var(--red);opacity:.7"></div><div class="sb" style="height:68%;background:var(--red);opacity:.75"></div><div class="sb" style="height:64%;background:var(--red);opacity:.85"></div><div class="sb" style="height:58%;background:var(--red);opacity:.92"></div><div class="sb" style="height:54%;background:var(--red)"></div></div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Satisfaction</div><div class="metric">4.6 / 5</div><div class="delta up">↑ 0.4</div><div class="spark"><div class="sb" style="height:58%;background:var(--green);opacity:.4"></div><div class="sb" style="height:53%;background:var(--green);opacity:.55"></div><div class="sb" style="height:63%;background:var(--green);opacity:.65"></div><div class="sb" style="height:69%;background:var(--green);opacity:.75"></div><div class="sb" style="height:74%;background:var(--green);opacity:.85"></div><div class="sb" style="height:84%;background:var(--green);opacity:.92"></div><div class="sb" style="height:100%;background:var(--green)"></div></div></div>
+        </div>
+
+        <div class="g2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-hd"><div class="card-title">Business Health Score</div><span class="tag t-g">Healthy</span></div>
+            <div style="display:flex;align-items:center;gap:20px">
+              <div class="ring-wrap"><svg width="90" height="90" viewBox="0 0 90 90"><circle cx="45" cy="45" r="36" fill="none" stroke="#f2f2f4" stroke-width="7"/><circle cx="45" cy="45" r="36" fill="none" stroke="#6366f1" stroke-width="7" stroke-dasharray="226" stroke-dashoffset="36.2" stroke-linecap="round"/></svg><div class="ring-ctr"><div class="ring-num">84</div><div class="ring-lbl">/ 100</div></div></div>
+              <div style="flex:1">
+                <div class="score-row"><span class="score-lbl">Revenue</span><div class="score-track"><div class="score-fill" style="width:88%;background:var(--green)"></div></div><span class="score-val">88</span></div>
+                <div class="score-row"><span class="score-lbl">Sales</span><div class="score-track"><div class="score-fill" style="width:79%;background:var(--accent)"></div></div><span class="score-val">79</span></div>
+                <div class="score-row"><span class="score-lbl">Operations</span><div class="score-track"><div class="score-fill" style="width:82%;background:var(--accent)"></div></div><span class="score-val">82</span></div>
+                <div class="score-row"><span class="score-lbl">Cust. Sat.</span><div class="score-track"><div class="score-fill" style="width:92%;background:var(--green)"></div></div><span class="score-val">92</span></div>
+                <div class="score-row"><span class="score-lbl">Marketing</span><div class="score-track"><div class="score-fill" style="width:68%;background:var(--amber)"></div></div><span class="score-val">68</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div class="card-title">Key Insights</div><span class="tag t-p">AI generated</span></div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div class="ic"><div class="ic-ico" style="background:var(--green-bg)">📈</div><div><div class="ic-txt">Revenue growing for 3 consecutive months</div><div class="ic-meta">Consulting & retainers up 28% YoY</div></div></div>
+              <div class="ic"><div class="ic-ico" style="background:var(--red-bg)">⏱</div><div><div class="ic-txt">Lead response time 14h — benchmark is 2h</div><div class="ic-meta">High risk of losing warm leads</div></div></div>
+              <div class="ic"><div class="ic-ico" style="background:var(--accent-bg)">⭐</div><div><div class="ic-txt">Brand Strategy generating 3× more revenue than SEO</div><div class="ic-meta">Upsell opportunity with 12 existing clients</div></div></div>
+              <div class="ic"><div class="ic-ico" style="background:var(--amber-bg)">⚠</div><div><div class="ic-txt">Onboarding complaints up 18% this month</div><div class="ic-meta">8 tickets mention "unclear next steps"</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:9px">Recommended Actions <span style="font-size:11px;font-weight:400;color:var(--text3)">— AI prioritised</span></div>
+        <div class="g2" style="margin-bottom:16px">
+          <div class="ac"><div class="ac-num" style="background:var(--red-bg);color:#991b1b">1</div><div style="flex:1"><div class="ac-title">Follow up with 8 inactive leads</div><div class="ac-desc">Uncontacted 7+ days. High intent signals on pricing page.</div><div class="ac-foot"><span class="tag t-r">High priority</span><span style="font-size:11px;color:var(--text3)">AED 32K opportunity</span><div class="chk" onclick="this.classList.toggle('done')">✓</div></div></div></div>
+          <div class="ac"><div class="ac-num" style="background:var(--amber-bg);color:#92400e">2</div><div style="flex:1"><div class="ac-title">Review 3 overdue invoices</div><div class="ac-desc">AED 47,500 outstanding. Two are 30+ days overdue.</div><div class="ac-foot"><span class="tag t-r">High priority</span><span style="font-size:11px;color:var(--text3)">Cash flow impact</span><div class="chk" onclick="this.classList.toggle('done')">✓</div></div></div></div>
+          <div class="ac"><div class="ac-num" style="background:var(--accent-bg);color:#3730a3">3</div><div style="flex:1"><div class="ac-title">Scale marketing for Brand Strategy</div><div class="ac-desc">Top service has capacity for 4 more clients. Increase Instagram 30%.</div><div class="ac-foot"><span class="tag t-a">Med priority</span><span style="font-size:11px;color:var(--text3)">Revenue opportunity</span><div class="chk" onclick="this.classList.toggle('done')">✓</div></div></div></div>
+          <div class="ac"><div class="ac-num" style="background:var(--green-bg);color:#065f46">4</div><div style="flex:1"><div class="ac-title">Redesign client onboarding flow</div><div class="ac-desc">8 recent clients mentioned unclear next steps this month.</div><div class="ac-foot"><span class="tag t-a">Med priority</span><span style="font-size:11px;color:var(--text3)">Retention impact</span><div class="chk" onclick="this.classList.toggle('done')">✓</div></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Revenue by Service</div><span class="tag t-b">This month</span></div>
+          <div class="bar-chart">
+            <div class="bar-row"><span class="bar-lbl">Brand Strategy</span><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--accent)">AED 92K</div></div></div>
+            <div class="bar-row"><span class="bar-lbl">Consulting</span><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--blue)">AED 71K</div></div></div>
+            <div class="bar-row"><span class="bar-lbl">Content Mgt</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--green)">AED 44K</div></div></div>
+            <div class="bar-row"><span class="bar-lbl">SEO Services</span><div class="bar-track"><div class="bar-fill" style="width:22%;background:var(--amber)">AED 23K</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI ADVISOR -->
+      <div class="page" id="page-advisor">
+        <div class="page-title">AI Business Advisor</div>
+        <div class="page-sub">Powered by Claude — ask anything about your business</div>
+        <div class="no-key-bar" id="no-key-bar">⚠ API key not configured. The AI Advisor will use smart demo responses. To enable live AI, open this file in a text editor and paste your key into the <strong>GROWTHOS_API_KEY</strong> line at the top.</div>
+        <div class="ctx-area">
+          <div class="ctx-lbl">Your Business Context <span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">— paste your real business data here. The AI reads this before every reply.</span></div>
+          <textarea class="ctx-ta" id="biz-ctx">Business: Acme Digital Ltd — Marketing Agency, Dubai UAE
+Monthly revenue: AED 218,400 (+12% vs last month)
+Services: Brand Strategy (AED 92K, 68% margin), Consulting (AED 71K), Content Management (AED 44K), SEO (AED 23K)
+New leads this week: 142 (+23%), mostly from Instagram (34), Referrals (26), LinkedIn (19)
+Lead conversion rate: 18.4% (down 2.1% from average)
+Uncontacted leads: 8 (avg 7 days since first contact — industry benchmark is 2h)
+Overdue invoices: 3 totalling AED 47,500 (2 are 30+ days overdue)
+Customer satisfaction: 4.6/5 (up from 4.2 last month)
+Main complaints: Onboarding clarity (8 tickets mention "unclear next steps")
+Business Health Score: 84/100
+Top competitor: BrandMasters MENA just dropped pricing 15% targeting our segment</textarea>
+        </div>
+        <div class="sugs">
+          <div class="sug" onclick="useSug(this)">Why did revenue change this week?</div>
+          <div class="sug" onclick="useSug(this)">What should I focus on this week?</div>
+          <div class="sug" onclick="useSug(this)">Which service is most profitable?</div>
+          <div class="sug" onclick="useSug(this)">What marketing campaign should I run next month?</div>
+          <div class="sug" onclick="useSug(this)">How do I fix my lead response time?</div>
+          <div class="sug" onclick="useSug(this)">Which clients are at risk of churning?</div>
+        </div>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="chat-msgs">
+            <div class="msg"><div class="msg-av ai">G</div><div class="bubble ai" id="welcome-msg">Hello! I'm your GrowthOS AI Business Advisor, powered by Claude.<br><br>I've read your business context above. Ask me anything about what's happening in your business, why it's happening, or what you should do next.<br><br>What would you like to explore?</div></div>
+          </div>
+          <div class="chat-footer">
+            <div class="chat-row">
+              <textarea class="chat-ta" id="chat-input" placeholder="Ask about your business — revenue, leads, customers, strategy…" rows="1" onkeydown="chatKey(event)"></textarea>
+              <button class="send-btn" id="send-btn" onclick="sendMsg()">Send →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEADS -->
+      <div class="page" id="page-leads">
+        <div class="page-title">Lead Intelligence</div>
+        <div class="page-sub">AI analysis of your pipeline, sources, and missed opportunities</div>
+        <div class="g4" style="margin-bottom:15px">
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Total Leads</div><div class="metric">142</div><div class="delta up">↑ 23%</div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Conversion</div><div class="metric">18.4%</div><div class="delta dn">↓ 2.1%</div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Uncontacted</div><div class="metric" style="color:var(--red)">8</div><div class="delta dn">14h avg response</div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Pipeline Value</div><div class="metric">AED 386K</div><div class="delta neu">42 active</div></div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-hd"><div class="card-title">Lead Sources</div><span class="tag t-p">AI ranked</span></div><div class="bar-chart"><div class="bar-row"><span class="bar-lbl">Instagram</span><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--accent)">34 leads</div></div></div><div class="bar-row"><span class="bar-lbl">Referrals</span><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--green)">26 leads</div></div></div><div class="bar-row"><span class="bar-lbl">LinkedIn</span><div class="bar-track"><div class="bar-fill" style="width:47%;background:var(--blue)">19 leads</div></div></div><div class="bar-row"><span class="bar-lbl">Website</span><div class="bar-track"><div class="bar-fill" style="width:35%;background:var(--amber)">14 leads</div></div></div><div class="bar-row"><span class="bar-lbl">Google Ads</span><div class="bar-track"><div class="bar-fill" style="width:20%;background:var(--text3)">8 leads</div></div></div></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">AI Recommendations</div></div><div style="display:flex;flex-direction:column;gap:7px"><div class="ic"><div class="ic-ico" style="background:var(--green-bg)">⭐</div><div><div class="ic-txt">Best source: Instagram (24% conversion)</div><div class="ic-meta">Double down — increase post frequency</div></div></div><div class="ic"><div class="ic-ico" style="background:var(--red-bg)">📉</div><div><div class="ic-txt">Weakest: Google Ads (6% conversion)</div><div class="ic-meta">Pause — poor ROI vs other channels</div></div></div><div class="ic"><div class="ic-ico" style="background:var(--amber-bg)">⚡</div><div><div class="ic-txt">8 warm leads uncontacted 7+ days</div><div class="ic-meta">Contact today — 72h window is critical</div></div></div><div class="ic"><div class="ic-ico" style="background:var(--accent-bg)">💡</div><div><div class="ic-txt">Referral program could 2× your leads</div><div class="ic-meta">12 happy clients haven't referred anyone</div></div></div></div></div>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS -->
+      <div class="page" id="page-customers">
+        <div class="page-title">Customer Feedback Intelligence</div>
+        <div class="page-sub">AI analysis of reviews, surveys, and support tickets</div>
+        <div class="g4" style="margin-bottom:15px">
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Sentiment Score</div><div class="metric">4.6 / 5</div><div class="delta up">↑ 0.4</div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Reviews</div><div class="metric">94</div><div class="delta neu">Last 90 days</div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Positive</div><div class="metric">81%</div><div class="delta up">↑ 6%</div></div>
+          <div class="card card-sm"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Open Tickets</div><div class="metric" style="color:var(--amber)">7</div><div class="delta dn">3 need reply</div></div>
+        </div>
+        <div class="g2"><div class="card"><div class="card-hd"><div class="card-title">Feedback Themes</div></div><div class="bar-chart"><div class="bar-row"><span class="bar-lbl">Results</span><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--accent)">33 mentions</div></div></div><div class="bar-row"><span class="bar-lbl">Onboarding</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--amber)">28 mentions</div></div></div><div class="bar-row"><span class="bar-lbl">Communication</span><div class="bar-track"><div class="bar-fill" style="width:56%;background:var(--green)">22 mentions</div></div></div><div class="bar-row"><span class="bar-lbl">Pricing</span><div class="bar-track"><div class="bar-fill" style="width:36%;background:var(--blue)">14 mentions</div></div></div></div></div><div class="card"><div class="card-hd"><div class="card-title">AI Insights</div></div><div style="display:flex;flex-direction:column;gap:7px"><div class="ic"><div class="ic-ico" style="background:var(--green-bg)">😊</div><div><div class="ic-txt">Clients love your strategy quality</div><div class="ic-meta">"Results exceeded expectations" — 18 times</div></div></div><div class="ic"><div class="ic-ico" style="background:var(--amber-bg)">📋</div><div><div class="ic-txt">Most requested: clearer timelines</div><div class="ic-meta">12 clients asked for milestone tracking</div></div></div><div class="ic"><div class="ic-ico" style="background:var(--red-bg)">⚠</div><div><div class="ic-txt">Onboarding is your biggest complaint area</div><div class="ic-meta">Create a structured welcome pack now</div></div></div></div></div></div>
+      </div>
+
+      <!-- MARKETING -->
+      <div class="page" id="page-marketing">
+        <div class="page-title">Marketing Intelligence</div>
+        <div class="page-sub">AI-generated content ideas, campaigns, and growth opportunities</div>
+        <div class="ai-bar"><div class="pulse"></div>AI Marketing Strategist — analysing your business data and UAE market trends</div>
+        <div class="g2" style="margin-bottom:15px">
+          <div class="card"><div class="card-hd"><div class="card-title">Top Content Ideas</div><span class="tag t-p">AI generated</span></div><div style="display:flex;flex-direction:column;gap:9px"><div style="padding:11px;background:var(--bg2);border-radius:var(--radius);border-left:3px solid var(--accent)"><div style="font-size:13px;font-weight:600;margin-bottom:3px">Before/after brand transformation carousel</div><div style="font-size:12px;color:var(--text2)">Show a real client result. High-engagement on Instagram. Est. reach: 8K–15K.</div></div><div style="padding:11px;background:var(--bg2);border-radius:var(--radius);border-left:3px solid var(--blue)"><div style="font-size:13px;font-weight:600;margin-bottom:3px">"5 signs your brand is invisible" LinkedIn post</div><div style="font-size:12px;color:var(--text2)">Thought leadership targeting SME founders. Drives DMs from decision-makers.</div></div><div style="padding:11px;background:var(--bg2);border-radius:var(--radius);border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:600;margin-bottom:3px">Dubai business setup season Reel</div><div style="font-size:12px;color:var(--text2)">Q3 is peak season for new business registrations. Target new founders.</div></div></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">Recommended Campaigns</div></div><div style="display:flex;flex-direction:column;gap:9px"><div style="padding:11px;background:var(--bg2);border-radius:var(--radius)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:13px;font-weight:600">Summer Brand Audit Offer</span><span class="tag t-a">High potential</span></div><div style="font-size:12px;color:var(--text2);margin-bottom:5px">Free audit lead magnet → upsell to Brand Strategy. Peak season for SMEs.</div><div style="font-size:11px;color:var(--text3)">Budget: AED 3,000 · Est. 18–24 leads</div></div><div style="padding:11px;background:var(--bg2);border-radius:var(--radius)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:13px;font-weight:600">Referral Reward Program</span><span class="tag t-g">Zero cost</span></div><div style="font-size:12px;color:var(--text2);margin-bottom:5px">Email your 12 happiest clients. 10% off per successful referral.</div><div style="font-size:11px;color:var(--text3)">No ad spend · Est. 6–10 warm leads</div></div></div></div>
+        </div>
+      </div>
+
+      <!-- COMPETITORS -->
+      <div class="page" id="page-competitors">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px"><div><div class="page-title">Competitor Watch</div><div class="page-sub" style="margin:0">AI-powered competitor monitoring</div></div><button onclick="showToast('Add competitor — coming in full launch')" style="padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer">+ Add competitor</button></div>
+        <div class="ai-bar"><div class="pulse"></div>Monitoring 3 competitors · Last scan: 2 hours ago</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:32px;height:32px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2)">BM</div><div style="flex:1"><div style="font-size:13px;font-weight:600">BrandMasters MENA</div><div style="font-size:11px;color:var(--text3)">brandmastersmena.com</div></div><span class="tag t-r">High threat</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px"><strong>AI Summary:</strong> Dropped pricing 15% this month. Targeting UAE business setup clients — your exact segment. Messaging: "brand ready in 7 days."</div><div style="background:var(--green-bg);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius);padding:9px 11px;font-size:12px;color:#065f46">💡 Counter with quality narrative — emphasise strategic depth vs their speed pitch. Add ROI proof points to your homepage.</div></div>
+          <div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:32px;height:32px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2)">CG</div><div style="flex:1"><div style="font-size:13px;font-weight:600">Creative Grid Dubai</div><div style="font-size:11px;color:var(--text3)">creativegrid.ae</div></div><span class="tag t-a">Medium threat</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px"><strong>AI Summary:</strong> Launching an "AI branding" service next month. Not fully rolled out yet but moving fast into this space.</div><div style="background:var(--green-bg);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius);padding:9px 11px;font-size:12px;color:#065f46">💡 Publish AI branding content now and own the position before they launch.</div></div>
+        </div>
+      </div>
+
+      <!-- UPLOAD -->
+      <div class="page" id="page-upload">
+        <div class="page-title">Upload Business Data</div>
+        <div class="page-sub">Upload your reports and the AI will automatically analyse them</div>
+        <div class="drop" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <div style="font-size:36px;margin-bottom:11px">⬆</div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:6px">Drop files here, or click to browse</div>
+          <div style="font-size:13px;color:var(--text2)">CSV, Excel (.xlsx), PDF, Google Sheets exports</div>
+          <div class="ftags"><span class="ftag">📊 Sales Report</span><span class="ftag">🎯 Lead Report</span><span class="ftag">💬 Feedback</span><span class="ftag">🧾 Invoices</span><span class="ftag">💸 Expenses</span></div>
+          <input type="file" id="file-input" multiple accept=".csv,.xlsx,.xls,.pdf,.txt" style="display:none" onchange="handleFiles(event)">
+        </div>
+        <div id="uploaded-files" style="margin-top:16px"></div>
+      </div>
+
+      <!-- REPORT -->
+      <div class="page" id="page-report">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+          <div><div class="page-title">Weekly Executive Report</div><div class="page-sub" style="margin:0">AI-generated · Professional format for business meetings</div></div>
+          <button onclick="showToast('PDF download available in full launch')" style="padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer">⬇ Download PDF</button>
+        </div>
+        <div class="report-shell">
+          <div class="report-page">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #0a0a0b"><div style="width:22px;height:22px;background:#0a0a0b;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:9px">G</div><span style="font-size:13px;font-weight:700;color:#0a0a0b">GrowthOS Executive Report</span></div>
+            <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;color:#0a0a0b;margin-bottom:4px" id="report-co">Your Business — Weekly Performance</div>
+            <div style="font-size:11px;color:#6b6b7a;margin-bottom:18px">Generated by GrowthOS AI · Beta</div>
+            <div style="height:1px;background:#e5e5eb;margin-bottom:16px"></div>
+            <div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9999aa;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #e5e5eb">Executive Summary</div><div style="font-size:13px;color:#333;line-height:1.75">Revenue increased 12% this week, driven by consulting retainers. Instagram was the strongest lead source (34 leads). Three invoices totalling AED 47,500 remain overdue. Customer satisfaction reached 4.6/5 — highest in 6 months.</div></div>
+            <div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9999aa;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #e5e5eb">Key Metrics</div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid #e5e5eb;color:#0a0a0b"><span>Monthly Revenue</span><strong>AED 218,400</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid #e5e5eb;color:#0a0a0b"><span>New Leads</span><strong>142</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid #e5e5eb;color:#0a0a0b"><span>Customer Satisfaction</span><strong style="color:#10b981">4.6 / 5.0</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#0a0a0b"><span>Health Score</span><strong>84 / 100</strong></div>
+            </div>
+            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9999aa;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #e5e5eb">Priority Actions</div><div style="font-size:13px;color:#333;line-height:2">1. Contact 8 unresponsive leads — AED 32K opportunity<br>2. Chase 3 overdue invoices — AED 47,500 outstanding<br>3. Increase Instagram investment — highest ROI channel<br>4. Redesign client onboarding to reduce complaints</div></div>
+            <div style="margin-top:16px;padding-top:10px;border-top:1px solid #e5e5eb;display:flex;justify-content:space-between;font-size:10px;color:#999"><span>Confidential · GrowthOS Beta</span><span id="report-date"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTEGRATIONS -->
+      <div class="page" id="page-integrations">
+        <div class="page-title">Integrations</div>
+        <div class="page-sub">Connect your tools — available in full launch</div>
+        <div class="int-grid">
+          <div class="int-card"><div class="int-logo" style="background:#e8272b">Z</div><div class="int-name">Zoho CRM</div><div class="int-status">Coming soon</div><button class="int-btn" onclick="showToast('Zoho — coming in full launch')">Notify me</button></div>
+          <div class="int-card"><div class="int-logo" style="background:#ff7a59">H</div><div class="int-name">HubSpot</div><div class="int-status">Coming soon</div><button class="int-btn" onclick="showToast('HubSpot — coming in full launch')">Notify me</button></div>
+          <div class="int-card"><div class="int-logo" style="background:#2ca01c">QB</div><div class="int-name">QuickBooks</div><div class="int-status">Coming soon</div><button class="int-btn" onclick="showToast('QuickBooks — coming in full launch')">Notify me</button></div>
+          <div class="int-card"><div class="int-logo" style="background:#13b5ea">X</div><div class="int-name">Xero</div><div class="int-status" style="color:var(--green)">✓ Connected</div><button class="int-btn on">Active</button></div>
+          <div class="int-card"><div class="int-logo" style="background:#e37400">GA</div><div class="int-name">Google Analytics</div><div class="int-status">Coming soon</div><button class="int-btn" onclick="showToast('GA — coming in full launch')">Notify me</button></div>
+          <div class="int-card"><div class="int-logo" style="background:#1877f2">M</div><div class="int-name">Meta Ads</div><div class="int-status">Coming soon</div><button class="int-btn" onclick="showToast('Meta Ads — coming in full launch')">Notify me</button></div>
+          <div class="int-card"><div class="int-logo" style="background:#96bf48">S</div><div class="int-name">Shopify</div><div class="int-status">Coming soon</div><button class="int-btn" onclick="showToast('Shopify — coming in full launch')">Notify me</button></div>
+          <div class="int-card"><div class="int-logo" style="background:#25d366">W</div><div class="int-name">WhatsApp Business</div><div class="int-status">Coming soon</div><button class="int-btn" onclick="showToast('WhatsApp — coming in full launch')">Notify me</button></div>
+        </div>
+      </div>
+
+      <!-- PRICING -->
+      <div class="page" id="page-pricing">
+        <div class="page-title">Plans & Billing</div>
+        <div class="page-sub">Launching soon — lock in early bird pricing during beta.</div>
+        <div style="background:var(--accent-bg);border:1px solid rgba(99,102,241,.3);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:20px;font-size:13px;color:#3730a3">🎉 <strong>You're a beta tester!</strong> You'll get 30% off when we launch. We'll email you first.</div>
+        <div class="pricing-grid">
+          <div class="pc"><div class="p-name">Starter</div><div><span class="p-amt">AED 199</span><span class="p-per">/month</span></div><div class="p-desc">For solo founders getting started with AI-powered insights.</div><ul class="p-feats"><li class="p-feat">Executive Dashboard</li><li class="p-feat">AI Advisor — 50 queries/month</li><li class="p-feat">Upload up to 5 files/month</li><li class="p-feat">Lead Intelligence</li><li class="p-feat">Weekly Report</li><li class="p-feat">1 user seat</li></ul><button class="p-btn" onclick="showToast('Payments launching soon — you will be notified!')">Join waitlist</button></div>
+          <div class="pc pop"><div class="pop-badge">Most popular</div><div class="p-name">Growth</div><div><span class="p-amt">AED 499</span><span class="p-per">/month</span></div><div class="p-desc">For growing SMEs and agencies needing full AI intelligence.</div><ul class="p-feats"><li class="p-feat">Everything in Starter</li><li class="p-feat">AI Advisor — 500 queries/month</li><li class="p-feat">Unlimited file uploads</li><li class="p-feat">Competitor Watch</li><li class="p-feat">Marketing Intelligence</li><li class="p-feat">Customer Feedback Intelligence</li><li class="p-feat">3 user seats</li></ul><button class="p-btn pop" onclick="showToast('Payments launching soon — you will be notified!')">Join waitlist</button></div>
+          <div class="pc"><div class="p-name">Enterprise</div><div><span class="p-amt">AED 1,499</span><span class="p-per">/month</span></div><div class="p-desc">For agencies managing multiple clients.</div><ul class="p-feats"><li class="p-feat">Everything in Growth</li><li class="p-feat">Unlimited AI queries</li><li class="p-feat">Multiple client workspaces</li><li class="p-feat">White-label reports</li><li class="p-feat">Dedicated success manager</li><li class="p-feat">Unlimited seats</li></ul><button class="p-btn" onclick="showToast('Contact: hello@growthos.ai')">Contact sales</button></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Manage your profile and business context</div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hd" style="margin-bottom:14px"><div class="card-title">Your Profile</div></div>
+            <div class="form-g"><label class="form-label">Your name</label><input type="text" class="form-input" id="s-name" placeholder="Sarah Johnson"></div>
+            <div class="form-g"><label class="form-label">Company</label><input type="text" class="form-input" id="s-company" placeholder="Acme Digital Ltd"></div>
+            <div class="form-g"><label class="form-label">Industry</label><select class="form-input" id="s-industry"><option>Marketing Agency</option><option>Consultancy</option><option>E-commerce</option><option>Service Business</option><option>Tech Startup</option></select></div>
+            <button onclick="saveProfile()" style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer">Save changes</button>
+          </div>
+          <div class="card">
+            <div class="card-hd" style="margin-bottom:4px"><div class="card-title">Beta Feedback</div></div>
+            <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.65">You're one of our first testers. Your feedback directly shapes GrowthOS before we launch to the public.</div>
+            <textarea style="width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--bg2);color:var(--text);outline:none;resize:vertical;min-height:100px;line-height:1.55" placeholder="What's working? What's missing? What would make this a must-have for your business?"></textarea>
+            <button onclick="showToast('Thank you for your feedback! 🙏')" style="margin-top:10px;padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;width:100%">Send feedback</button>
+            <div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:var(--radius);font-size:12px;color:var(--text2);text-align:center">Or email us directly: <strong style="color:var(--text)">hello@growthos.ai</strong></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let userName = '';
+let userCompany = '';
+let chatHistory = [];
+const API_KEY = typeof GROWTHOS_API_KEY !== 'undefined' ? GROWTHOS_API_KEY : '';
+const HAS_KEY = API_KEY && API_KEY !== 'YOUR_API_KEY_HERE';
+
+// ── UTILS ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+// ── AUTH ──
+function switchTab(tab, el) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function doLogin() {
+  const name = document.getElementById('l-name').value.trim();
+  const company = document.getElementById('l-company').value.trim();
+  if (!name) { showToast('Please enter your name'); return; }
+  enterApp(name, company || 'My Business');
+}
+
+function doSignup() {
+  const fname = document.getElementById('s-fname').value.trim();
+  const lname = document.getElementById('s-lname').value.trim();
+  const company = document.getElementById('s-company').value.trim();
+  if (!fname) { showToast('Please enter your name'); return; }
+  enterApp(`${fname} ${lname}`.trim(), company || 'My Business');
+}
+
+function enterApp(name, company) {
+  userName = name;
+  userCompany = company;
+  document.getElementById('auth-screen').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+  app.style.flexDirection = 'column';
+  // Populate UI
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('user-av').textContent = initials;
+  document.getElementById('dash-greeting').textContent = `${getGreeting()}, ${name.split(' ')[0]} 👋`;
+  document.getElementById('report-co').textContent = `${company} — Weekly Performance`;
+  document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('s-name').value = name;
+  document.getElementById('s-company').value = company;
+  document.getElementById('welcome-msg').innerHTML = `Hello ${name.split(' ')[0]}! I'm your GrowthOS AI Business Advisor, powered by Claude.<br><br>Ask me anything about your business — what's happening, why, and what you should do next.<br><br>What would you like to know?`;
+  // Update context with their company name
+  const ctx = document.getElementById('biz-ctx');
+  ctx.value = ctx.value.replace('Acme Digital Ltd', company);
+  // Show no-key warning if needed
+  if (!HAS_KEY) document.getElementById('no-key-bar').style.display = 'block';
+}
+
+function saveProfile() {
+  userName = document.getElementById('s-name').value || userName;
+  userCompany = document.getElementById('s-company').value || userCompany;
+  showToast('✓ Profile saved');
+}
+
+// ── NAVIGATION ──
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('main-scroll').scrollTop = 0;
+}
+
+// ── CHAT ──
+function useSug(el) {
+  document.getElementById('chat-input').value = el.textContent;
+  sendMsg();
+}
+
+function chatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+async function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const msgs = document.getElementById('chat-msgs');
+  input.value = '';
+  input.disabled = true;
+  document.getElementById('send-btn').disabled = true;
+  addBubble('user', msg, msgs);
+  chatHistory.push({ role: 'user', content: msg });
+  const typingEl = addTyping(msgs);
+
+  if (HAS_KEY) {
+    // Live AI
+    const ctx = document.getElementById('biz-ctx').value;
+    const system = `You are GrowthOS AI Business Advisor — a sharp, practical executive assistant for SME business owners. Think like a COO, business analyst, and growth consultant combined.
+
+Mission: Transform business data into clear, decisive, actionable guidance. Answer in plain English. Be direct. Be specific. Reference real numbers.
+
+BUSINESS CONTEXT:
+${ctx}
+
+User: ${userName} | Company: ${userCompany}
+
+Rules:
+- Answer the specific question asked
+- Reference actual numbers from the context above  
+- Give 1-3 concrete prioritised actions
+- Be confident and decisive — keep it under 280 words
+- If data isn't in context, say so and offer reasoned inference`;
+
+    try {
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1024,
+          system,
+          messages: chatHistory.slice(-18)
+        })
+      });
+      typingEl.remove();
+      if (r.ok) {
+        const data = await r.json();
+        const reply = data.content?.[0]?.text || 'No response.';
+        addBubble('ai', reply, msgs);
+        chatHistory.push({ role: 'assistant', content: reply });
+      } else {
+        const e = await r.json().catch(() => ({}));
+        addBubble('err', '✗ ' + (e.error?.message || 'API error ' + r.status), msgs);
+        chatHistory.pop();
+      }
+    } catch(e) {
+      typingEl.remove();
+      addBubble('err', '✗ Network error. Please check your connection.', msgs);
+      chatHistory.pop();
+    }
+  } else {
+    // Smart demo responses
+    await new Promise(r => setTimeout(r, 1400));
+    typingEl.remove();
+    const reply = getDemoResponse(msg);
+    addBubble('ai', reply, msgs);
+    chatHistory.push({ role: 'assistant', content: reply });
+  }
+
+  input.disabled = false;
+  document.getElementById('send-btn').disabled = false;
+  input.focus();
+}
+
+function getDemoResponse(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('revenue') || m.includes('money') || m.includes('sales')) return `Based on your data, revenue is up 12% this week — driven mainly by consulting retainers.\n\nYour most profitable service is Brand Strategy at AED 92K this month (68% gross margin). Compare that to SEO at AED 23K (29% margin) — a huge gap.\n\n3 actions to increase revenue now:\n1. Stop discounting Brand Strategy — demand is there, raise rates 15%\n2. Upsell 12 existing clients from SEO to Brand Strategy\n3. Chase the 3 overdue invoices (AED 47,500) this week`;
+  if (m.includes('focus') || m.includes('week') || m.includes('priorit')) return `Your top 3 priorities this week:\n\n1. Contact 8 uncontacted leads TODAY — they've been waiting 7+ days. At your 18% conversion rate, that's potentially AED 32K in new business. Every hour you wait, the chance drops.\n\n2. Send payment reminders for 3 overdue invoices — AED 47,500 sitting unpaid is a cash flow risk you don't need.\n\n3. Post one piece of content on Instagram — it's your best lead channel (34 leads, 24% conversion). Even one Reel keeps the pipeline warm.`;
+  if (m.includes('profit') || m.includes('service') || m.includes('best')) return `Your most profitable service by far is Brand Strategy:\n\n• Brand Strategy: AED 92K / month — 68% gross margin\n• Consulting: AED 71K / month — 52% margin\n• Content Management: AED 44K / month — 41% margin\n• SEO: AED 23K / month — 29% margin\n\nBrand Strategy makes you 3× more per hour than SEO. You have capacity for 4 more clients right now.\n\nRecommendation: Redirect your Instagram content toward Brand Strategy case studies. Stop promoting SEO — it's your lowest-margin service.`;
+  if (m.includes('marketing') || m.includes('campaign') || m.includes('content')) return `Best campaign for next month: Summer Brand Audit.\n\nHere's the idea: Offer a free 30-minute brand audit as a lead magnet → convert to paid Brand Strategy.\n\nWhy it works now:\n• UAE business setup season peaks in Q3 — new companies need branding\n• Your competitor BrandMasters just dropped pricing — you need to generate leads before they capture the market\n• Free audits are low friction for prospects, high conversion for you\n\nPlatform: Instagram Reels + LinkedIn DMs\nBudget: AED 3,000 in ads\nExpected: 18–24 qualified leads in 30 days`;
+  if (m.includes('lead') || m.includes('conversion') || m.includes('pipeline')) return `Your lead situation this week:\n\n• 142 new leads (great volume, up 23%)\n• 8 uncontacted leads — this is urgent\n• Conversion rate dropped 2.1% — likely because of slow response time\n\nThe core problem: you're averaging 14 hours to respond. Industry benchmark is 2 hours. Warm leads go cold fast — if a prospect doesn't hear from you within 4 hours, there's a 70% chance they've already talked to a competitor.\n\nFix: Set a rule — any new lead gets a WhatsApp message within 1 hour. Even just "Hi, I saw your message — let's book a call this week." That alone could lift your conversion back above 20%.`;
+  if (m.includes('churn') || m.includes('client') || m.includes('retention')) return `Based on your feedback data, clients most at risk of churning are showing these warning signs:\n\n• Complained about onboarding (8 clients mentioned "unclear next steps")\n• Haven't referred anyone (12 happy clients with zero referrals — low engagement signal)\n• On SEO-only contracts (lowest satisfaction, lowest margin)\n\nImmediate action: Send a personal check-in email this week to your 5 longest-standing clients. Not a newsletter — a personal message. Ask one question: "What's one thing we could do better for you?"\n\nThis alone reduces churn by an average of 25% in service businesses.`;
+  return `Great question. Based on your business context here's what I can see:\n\nYour business is performing well overall — 84/100 health score — with strong revenue growth (+12%) and improving customer satisfaction (4.6/5).\n\nThe biggest opportunity right now is speed: your lead response time (14h vs 2h benchmark) is costing you conversions. And the 8 uncontacted leads represent potential AED 32K in revenue sitting idle.\n\nWhat specific area would you like to go deeper on? Try asking about your most profitable service, what to focus on this week, or what marketing campaign to run next month.`;
+}
+
+function addBubble(type, html, container) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg' + (type === 'user' ? ' user' : '');
+  const avCls = type === 'user' ? 'usr' : 'ai';
+  const avLbl = type === 'user' ? (userName?.[0] || 'U').toUpperCase() : 'G';
+  const bubCls = type === 'err' ? 'err' : (type === 'user' ? 'usr' : 'ai');
+  wrap.innerHTML = `<div class="msg-av ${avCls}">${avLbl}</div><div class="bubble ${bubCls}" style="white-space:pre-line">${html}</div>`;
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+  return wrap;
+}
+
+function addTyping(container) {
+  const el = document.createElement('div');
+  el.className = 'msg';
+  el.innerHTML = `<div class="msg-av ai">G</div><div class="bubble ai"><div class="tdots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  return el;
+}
+
+// ── UPLOAD ──
+function handleFiles(e) { processFiles(Array.from(e.target.files)); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  processFiles(Array.from(e.dataTransfer.files));
+}
+
+function processFiles(files) {
+  const container = document.getElementById('uploaded-files');
+  files.forEach(f => {
+    const icon = f.name.endsWith('.pdf') ? '📄' : f.name.match(/\.xlsx?/i) ? '📊' : '📋';
+    const item = document.createElement('div');
+    item.style.cssText = 'background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+    item.innerHTML = `<div style="font-size:20px">${icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${f.name}</div><div style="font-size:11px;color:var(--text3)">${(f.size/1024).toFixed(0)} KB · Uploaded just now</div></div><div class="ai-bar" style="margin:0;padding:5px 11px;font-size:12px"><div class="pulse"></div> Analysing…</div>`;
+    container.prepend(item);
+    setTimeout(() => {
+      item.querySelector('.ai-bar').outerHTML;
+      const status = item.querySelector('.ai-bar');
+      if (status) { status.style.background = 'var(--green-bg)'; status.style.borderColor = 'rgba(16,185,129,.2)'; status.style.color = '#065f46'; status.innerHTML = '✓ Analysis complete'; }
+      showToast('✓ ' + f.name + ' analysed — go to AI Advisor to ask questions about it');
+    }, 2500);
+  });
+}
+
+// ── INIT ──
+document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+</script>
+</body>
+</html>
